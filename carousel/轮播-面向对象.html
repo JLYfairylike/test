@@ -1,0 +1,161 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<style>
+* {margin:0; padding:0; }
+li{list-style:none; }
+
+#div1 {width:850px; height:500px; margin:50px auto; overflow:hidden; position:relative;}
+#div1 ul li{height:500px;position: absolute;left: 0;top: 0;z-index: 0;}
+#div1 ol {position:absolute;right: 10%;bottom: 10px;z-index:6}
+#div1 ol li{width: 20px;height: 20px;background: #fff;margin-left: 5px;float: left;line-height: 20px;text-align: center;cursor: pointer;}
+#div1 ol li.ac{background: red;color: #fff;}
+#div1>a{text-decoration: none;position: absolute;top: 50%;margin-top: -10px;height: 40px;line-height: 32px;text-align: center;width: 40px;font-size: 40px;vertical-align: middle;color: #fff;background: rgba(0,0,0,0.5);z-index:6;}
+#div1 ul li.ac{z-index: 6;left: 0;}
+#goPrev{left: 0;}
+#goNext{right: 0;}
+img{width:850px; height:500px;}
+#div1 ul li.rightShow{animation-name: play0;animation-duration: 2s;z-index: 5;}
+#div1 ul li.rightNoShow{animation-name: play1;animation-duration:2s;z-index: 5;}
+#div1 ul li.leftShow{animation-name:play2;animation-duration:2s;z-index: 5;}
+#div1 ul li.leftNoShow{animation-name:play3;animation-duration:2s;z-index: 5;}
+@keyframes play0{
+	from{
+		left: -100%;
+	}
+	to{
+		left: 0px;
+	}
+}
+@keyframes play1{
+	from{
+		left: 0;
+	}
+	to{
+		left: 100%;
+	}
+}
+@keyframes play2{
+	from{
+		left: 100%;
+	}
+	to{
+		left: 0px;
+	}
+}
+@keyframes play3{
+	from{
+		left: 0;
+	}
+	to{
+		left: -100%;
+	}
+}
+</style>
+</head>
+
+<body>
+<div id="div1">
+	<ul>
+    	<li class="ac"><a href="javascript:alert(0);"><img src="1.jpg" /></a></li>
+    	<li><a href="javascript:alert(1);"><img src="2.jpg" /></a></li>
+    	<li><a href="javascript:alert(2);"><img src="3.jpg" /></a></li>
+    	<li><a href="javascript:alert(3);"><img src="4.jpg" /></a></li>
+    	<li><a href="javascript:alert(4);"><img src="5.jpg" /></a></li>
+    </ul>
+    <ol>
+    	<li class="ac">1</li>
+    	<li>2</li>
+    	<li>3</li>
+    	<li>4</li>
+    	<li>5</li>
+    </ol>
+    <a href="javascript:;" id="goPrev">&laquo;</a>
+    <a href="javascript:;" id="goNext">&raquo;</a>
+</div>
+<script>
+	class Carousel{
+		constructor(selector){
+			this.div = document.querySelector(selector);
+			this.btns = this.div.querySelector("ol").children;
+			this.imgs = this.div.querySelector("ul").children;
+			this.goPrev = this.div.querySelector("#goPrev");
+			this.goNext = this.div.querySelector("#goNext");
+			this.index = 0;
+			this.lastIndex = 0;
+			this.lastTwoIndex = 0;
+			this.timer = null;
+			this.bindEvents();
+			this.autoPlay();
+			
+		}
+		
+		bindEvents(){
+			Array.from(this.btns).forEach( (btn, i) =>{
+				btn.onclick = () =>{
+					this.btnClick(i);
+				}
+			})
+			this.goPrev.onclick = this.goPrevClick.bind(this);
+			this.goNext.onclick = this.goNextClick.bind(this);
+			this.div.onmouseenter = this.mouseEnter.bind(this);
+			this.div.onmouseleave = this.autoPlay.bind(this);
+		}
+		btnClick(i){
+			this.index = i;
+			this.index >= this.lastIndex ?  this.leftChangeImg() : this.rightChangeImg();					
+		}
+		goPrevClick(){
+			if(--this.index < 0) this.index = this.btns.length - 1;
+			this.rightChangeImg();
+		}
+		goNextClick(){
+			if(++this.index === this.btns.length) this.index = 0;
+			this.leftChangeImg();
+		}
+		
+		autoPlay(){
+			this.timer = setInterval(() =>{
+				this.goNextClick();
+			},2000)
+		}
+		
+		leftChangeImg(){
+			this.changeImg();
+			this.imgs[this.lastIndex].classList.add("leftNoShow");
+			this.imgs[this.index].classList.add("leftShow");
+			this.lastTwoIndex = this.lastIndex;
+			this.lastIndex = this.index;
+		}
+		
+		rightChangeImg(){
+			this.changeImg();
+			this.imgs[this.lastIndex].classList.add("rightNoShow");
+			this.imgs[this.index].classList.add("rightShow");
+			this.lastTwoIndex = this.lastIndex;
+			this.lastIndex = this.index;
+		}
+		changeImg(){
+			this.imgs[this.lastTwoIndex].classList.remove("rightNoShow");
+			this.imgs[this.lastTwoIndex].classList.remove("leftNoShow");
+			this.imgs[this.lastIndex].classList.remove("rightShow");
+			this.imgs[this.lastIndex].classList.remove("leftShow");
+			this.imgs[this.lastIndex].classList.remove("ac");
+			this.btns[this.lastIndex].classList.remove("ac");
+			this.btns[this.index].classList.add("ac");	
+			this.imgs[this.index].classList.add("ac");
+		}
+		mouseEnter(){
+			clearInterval(this.timer);
+		}
+		
+		
+	}
+	new Carousel("#div1");
+
+</script>
+</body>
+</html>
